@@ -8,5 +8,12 @@ matplotlib-inline
 mpmath
 numpy==1.26.4
 plotly==5.20.0
-PyCBC==2.4.0
+gsl
+swig
+lal
+lalsuite
+h5py 
+astropy 
+dqsegdb
 scipy==1.13.0
+PyCBC==2.4.0
