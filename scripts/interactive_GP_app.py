@@ -14,6 +14,24 @@ matplotlib.rcParams["figure.dpi"] = 200
 
 import math
 
+from astropy.cosmology import FlatLambdaCDM
+
+def redshift_to_luminosity_distance(z)->float:
+    """
+    Convert redshift to luminosity distance in standard Lambda CDM cosmology.
+    _______________________________________________________________________________________    
+    Parameters used:
+    z : float : redshift
+    _______________________________________________________________________________________
+    Returns:    
+    luminosity_distance : float : luminosity distance in Gpc
+    """
+    # Define the cosmology
+    cosmo = FlatLambdaCDM(H0=67.4, Om0=0.315) # Planck 2018 results
+    luminosity_distance = cosmo.luminosity_distance(z).to('Gpc').value
+    return luminosity_distance
+
+
 def redshifted_new_params(z, rp_params)->dict:
     """
     Get redshifted params

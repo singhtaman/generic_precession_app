@@ -1,3 +1,4 @@
+astropy
 dash==2.18.1
 dash-core-components==2.0.0
 dash-html-components==2.0.0
