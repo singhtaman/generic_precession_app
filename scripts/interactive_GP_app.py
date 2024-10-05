@@ -319,6 +319,8 @@ def plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Om
 
 app = Dash(__name__)
 
+server = app.server
+
 app.layout = html.Div([
     dcc.Graph(id='combined-plot'),
     
