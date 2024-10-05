@@ -4,8 +4,7 @@ dash-html-components==2.0.0
 dash-table==5.0.0
 gunicorn==23.0.0
 matplotlib 
-matplotlib-inline 
-math
+matplotlib-inline
 mpmath
 numpy==1.26.4
 plotly==5.20.0
