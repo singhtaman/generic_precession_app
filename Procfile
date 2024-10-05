@@ -1,0 +1,1 @@
+web: gunicorn scripts.interactive_GP_app:server
