@@ -5,7 +5,7 @@ warnings.filterwarnings("ignore", "Wswiglal-redir-stdio")
 import sys
 sys.path.insert(0, "../")
 
-from generic_precession import *
+from generic_precession_no_match import *
 from systems_lib import *
 
 import matplotlib.pyplot as plt
