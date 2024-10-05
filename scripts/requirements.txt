@@ -14,5 +14,3 @@ h5py
 astropy 
 dqsegdb
 scipy==1.13.0
-lalsuite
-PyCBC==2.4.0
