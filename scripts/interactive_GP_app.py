@@ -14,6 +14,23 @@ matplotlib.rcParams["figure.dpi"] = 200
 
 import math
 
+def redshifted_new_params(z, rp_params)->dict:
+    """
+    Get redshifted params
+    _______________________________________________________________________________________    
+    Parameters used:
+    z : float : redshift
+    rp_params : dict : Regular precession parameters
+    _______________________________________________________________________________________
+    Returns:    
+    rp_params : dict : Regular precession parameters
+    """
+    rp_params["dist"] = redshift_to_luminosity_distance(z)*giga_parsec
+    old_chirp = rp_params["mcz"]
+    #new chirp mass
+    rp_params["mcz"] = old_chirp*(1+z)
+    return rp_params
+
 # Define the default parameters for the system 1
 default_precession_params_sys1_GP = redshifted_new_params(0.3, default_precession_params_sys1_GP)
 default_precession_params_sys1_RP = redshifted_new_params(0.3, default_precession_params_sys1_RP)
