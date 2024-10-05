@@ -117,8 +117,8 @@ def plot_cos_L_phi_L(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta
     phi_L_RP = precession_initial_RP.phi_L(f_range)
     
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=phi_L_GP, y=cos_L_GP, mode='lines', line=dict(color='blue')))
-    fig.add_trace(go.Scatter(x=phi_L_RP, y=cos_L_RP, mode='lines', line=dict(color='gray', dash='dash')))
+    fig.add_trace(go.Scatter(x=phi_L_GP, y=cos_L_GP, mode='lines', name='GP', line=dict(color='blue')))
+    fig.add_trace(go.Scatter(x=phi_L_RP, y=cos_L_RP, mode='lines', name='RP', line=dict(color='gray', dash='dash')))
     fig.add_trace(go.Scatter(x=[np.pi/2], y=[0], mode='markers', marker=dict(color='red'), name='J'))
     
     fig.update_xaxes(tickvals=[np.pi/4, 3*np.pi/8, np.pi/2, 5*np.pi/8, 3*np.pi/4], ticktext=['π/4', '3π/8', 'π/2', '5π/8', '3π/4'])
