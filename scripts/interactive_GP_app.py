@@ -14,6 +14,8 @@ matplotlib.rcParams["figure.dpi"] = 200
 
 import math
 
+server = app.server
+
 from astropy.cosmology import FlatLambdaCDM
 
 def redshift_to_luminosity_distance(z)->float:
