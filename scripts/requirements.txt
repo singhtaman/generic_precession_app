@@ -10,8 +10,6 @@ numpy==1.26.4
 plotly==5.20.0
 gsl
 swig
-lal
-lalsuite
 h5py 
 astropy 
 dqsegdb
