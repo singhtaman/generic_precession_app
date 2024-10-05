@@ -14,8 +14,6 @@ matplotlib.rcParams["figure.dpi"] = 200
 
 import math
 
-server = app.server
-
 from astropy.cosmology import FlatLambdaCDM
 
 def redshift_to_luminosity_distance(z)->float:
@@ -306,6 +304,8 @@ def plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Om
     return fig
 
 app = Dash(__name__)
+
+server = app.server
 
 app.layout = html.Div([
     dcc.Graph(id='combined-plot'),
