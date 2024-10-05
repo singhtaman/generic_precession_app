@@ -394,6 +394,8 @@ app.layout = html.Div([
 def update_plot(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Omega_tilde, omega_n_tilde, gamma_N):
     return plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Omega_tilde, omega_n_tilde, gamma_N)
 
+import os
 if __name__ == '__main__':
-    # Run and save the app as a static HTML file
-    app.run_server(debug=False)
+    # Get the port from the environment variable
+    port = int(os.environ.get('PORT', 5000))
+    app.run_server(host='0.0.0.0', port=port)
