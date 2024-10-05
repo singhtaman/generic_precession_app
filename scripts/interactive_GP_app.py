@@ -301,11 +301,23 @@ def plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Om
         xaxis3=dict(tickmode='array', tickvals=[20, 40, 60, 80, 100, 120, 140], ticktext=['20', '40', '60', '80', '100', '120', '140']),
     )
     
+    fig.add_annotation(
+        text="© Tamanjyot Singh @ UTD",  # Replace with your watermark text
+        xref="paper", yref="paper", 
+        x=1.07, y=-0.2, 
+        showarrow=False,
+        font=dict(
+        family="Times-new-roman, sans-serif",  # Change to your desired font family
+        size=16,                     # Font size
+        color="gray"                 # Font color
+        ),  # Font size and color
+        align="center",  # Align the text
+        opacity=0.5  # Make it semi-transparent
+    )
+    
     return fig
 
 app = Dash(__name__)
-
-server = app.server
 
 app.layout = html.Div([
     dcc.Graph(id='combined-plot'),
@@ -379,6 +391,65 @@ app.layout = html.Div([
                         }, 
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
+    
+    html.Div(
+        [
+            html.A(
+                html.Img(
+                    src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png',
+                    style={
+                        'width': '20px',  # Adjust the size as needed
+                        'height': '20px',
+                    }
+                ),
+                href='https://github.com/singhtaman',  # Change this to your GitHub or Website URL
+                target='_blank',  # Opens in a new tab
+                style={
+                    'font-size': '12px',
+                    'color': 'gray',
+                    'text-decoration': 'none',
+                }
+            )
+        ],
+        style={
+            'position': 'absolute',
+            'bottom': '145px',  # Move lower
+            'right': '45px',
+            'background-color': 'rgba(255, 255, 255, 0.8)',  # Optional: make it slightly opaque
+            'padding': '5px',
+            'border-radius': '5px',  # Optional: add rounded corners
+        }
+    ),
+
+    # Web logo link
+    html.Div(
+        [
+            html.A(
+                html.Img(
+                    src='https://static.vecteezy.com/system/resources/thumbnails/003/731/316/small/web-icon-line-on-white-background-image-for-web-presentation-logo-icon-symbol-free-vector.jpg',  # Web logo URL
+                    style={
+                        'width': '20px',  # Adjust the size as needed
+                        'height': '20px',
+                    }
+                ),
+                href='https://singhtaman.github.io/',  # Change this to your web link URL
+                target='_blank',  # Opens in a new tab
+                style={
+                    'font-size': '12px',
+                    'color': 'gray',
+                    'text-decoration': 'none',
+                }
+            )
+        ],
+        style={
+            'position': 'absolute',
+            'bottom': '145px',  # Move lower
+            'right': '20px',  # Adjust the position to avoid overlap
+            'background-color': 'rgba(255, 255, 255, 0.8)',  # Optional: make it slightly opaque
+            'padding': '5px',
+            'border-radius': '5px',  # Optional: add rounded corners
+        }
+    )
 ])
 
 
