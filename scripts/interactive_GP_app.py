@@ -7,7 +7,7 @@ sys.path.insert(0, "../")
 
 from generic_precession import *
 from systems_lib import *
-from mismatch_n_SNR import *
+
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.rcParams["figure.dpi"] = 200
