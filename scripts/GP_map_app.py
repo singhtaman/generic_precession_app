@@ -247,7 +247,7 @@ from dash.dependencies import Input, Output
 
 def plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Omega_tilde, omega_n_tilde, gamma_N):
     label = (
-        f'<b>Modulation</b> of orbital angular momentum (L) around total angular momentum (J) along with <b>amplitude variations</b> and <b>phase differences</b> in gravitational wave signals from an inpiralling binary black hole system<br>'
+        f'<b>Modulation</b> of orbital angular momentum (L) around total angular momentum (J) along with <b>amplitude variations</b> and <b>phase differences</b> in gravitational wave signals from an inspiralling binary black hole system<br>'
         f'introduced in generically precessing (and regularly precessing, shown in gray dashdot lines) as compared to non-precessing binaries. The signal originates from an <b>edge-on</b> binary where J direction is specified as<br>'
         f'(θ_J = π/2, φ_J = π/2), that is located at <b>redshift z = 0.3</b> with sky location specified as (θ_S = π/4, φ_S = 0). The system has a <b>chirp mass of 10 solar masses</b> with mass ratio <b>q = 0.6</b>. The precession parameters are:<br>'
         f'θ̃ = {theta_tilde:.1f}, Ω̃ = {Omega_tilde:.1f}, γ_P = {gamma_P:.1f}, Δθ̃ = {delta_theta_tilde:.1f}, ΔΩ̃ = {delta_Omega_tilde:.1f}, ω̃ = {omega_n_tilde:.1f}, γ_N = {gamma_N:.1f}'
