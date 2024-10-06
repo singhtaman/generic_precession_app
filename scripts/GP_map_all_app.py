@@ -564,7 +564,13 @@ app.layout = html.Div([
                         2*np.pi: '2π'
                     },
                     tooltip={"placement": "bottom", "always_visible": False}),
-    ], style={'width': '25%', 'display': 'inline-block'})
+    ], style={'width': '25%', 'display': 'inline-block'}),
+    
+    html.Div(style={'height': '20px'}),
+    
+    html.Div([
+        html.Label(id='cos_i_JN-label', children=f'Cosine of angle between J and N, cos(ι_JN) : {0:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
+])
 ])
 
 
@@ -672,6 +678,17 @@ def update_omega_n_tilde(value):
     Input('gamma_N-slider', 'value'))
 def update_gamma_N(value):
     return f'Nutational phase, γ_N : {value:.2f}'
+
+@app.callback(
+    Output('cos_i_JN-label', 'children'),
+    Input('theta_J-slider', 'value'),
+    Input('theta_S-slider', 'value'),
+    Input('phi_J-slider', 'value'),
+    Input('phi_S-slider', 'value')
+)
+def update_cos_i_JN(theta_J, theta_S, phi_J, phi_S):
+    cos_i_JN = (np.sin(theta_J) * np.sin(theta_S) * np.cos(phi_J - phi_S)) + (np.cos(theta_J) * np.cos(theta_S))
+    return f'Cosine of angle between J and N, cos(ι_JN) : {cos_i_JN:.2f}'
 
 import os
 if __name__ == '__main__':
