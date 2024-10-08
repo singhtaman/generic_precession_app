@@ -338,12 +338,15 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
     
     return fig
 
-app = Dash(__name__)
+app = Dash(__name__, assets_folder='assets')
 
 server = app.server
 
+app.title = "Generic Precession"
 
 app.layout = html.Div([
+    
+    html.Link(rel='icon', href='/assets/bbh_spin.jpg?v=1'),
     
     html.H3("Generic Precession", style={'margin-bottom': '1px'}),
     
