@@ -575,7 +575,7 @@ app.layout = html.Div([
         html.Label(id='cos_i_JN-label', children=f'Cosine of angle between J and N, cos(ι_JN) = {0:.2f}', style={'font-size': '15px', 'opacity': '0.9'})]),
     
     html.Div([
-        html.Label(id='total_mass=label', children=f'Total mass of the binary is, M = {23.88:.2f} solar masses (redshifted, M = {31.04:.2f} solar masses)', style={'font-size': '15px', 'opacity': '0.9'})])
+        html.Label(id='total_mass=label', children=f'Total mass of the binary is, M = {23.88:.2f} solar masses (redshifted, M_z = {31.04:.2f} solar masses), and the cut off frequency for this signal is, f_cut = {141.62:.2f} Hz', style={'font-size': '15px', 'opacity': '0.9'})])
     
 ])
 
@@ -704,7 +704,8 @@ def update_cos_i_JN(theta_J, theta_S, phi_J, phi_S):
 def update_total_mass(chirp_mass, mass_ratio, redshift):
     total_mass = chirp_mass/((mass_ratio/(1+mass_ratio)**2)**(3/5))
     total_mass_redshifted = total_mass*(1+redshift)
-    return f'Total mass of the binary is, M = {total_mass:.2f} solar masses (redshifted, M = {total_mass_redshifted:.2f} solar masses)'
+    f_cut = 1/(6**(3/2)*np.pi*total_mass_redshifted*solar_mass)
+    return f'Total mass of the binary is, M = {total_mass:.2f} solar masses (redshifted, M_z = {total_mass_redshifted:.2f} solar masses), and the cut off frequency for this signal is, f_cut = {f_cut:.2f} Hz'
 
 import os
 if __name__ == '__main__':
