@@ -427,7 +427,7 @@ app.layout = html.Div([
                    min=0, max=9, step=0.1, value=5,
                    marks={i: str(i) for i in range(10)},
                    tooltip={"placement": "bottom", "always_visible": False}),
-    ], style={'width': '40%', 'display': 'inline-block'}),
+    ], style={'width': '50%', 'display': 'inline-block'}),
 
     html.Div([
         html.Label(id='Omega_tilde-label', children=f'Precession frequency, Ω̃ : {2}', style={'font-size': '15px', 'opacity': '0.9'}),
@@ -435,7 +435,7 @@ app.layout = html.Div([
                    min=0, max=3, step=0.1, value=2,
                    marks={i: str(i) for i in [0, 0.5, 1, 1.5, 2, 2.5, 3]},
                    tooltip={"placement": "bottom", "always_visible": False}),
-    ], style={'width': '35%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block'}),
 
     html.Div([
         html.Label(id='gamma_P-label', children=r'Precessional phase, γ_P : {0:.2f}'.format(0), style={'font-size': '15px', 'opacity': '0.9'}),
@@ -492,24 +492,24 @@ app.layout = html.Div([
     html.Div([
         html.Label(id='chirp_mass-label', children=f'Chirp mass, M_c : {10}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='chirp_mass-slider',
-                    min=5, max=50, step=5, value=10,
+                    min=5, max=50, step=1, value=10,
                     marks={i: str(i) for i in range(5, 51, 5)},
                     tooltip={"placement": "bottom", "always_visible": False}),
-    ], style={'width': '40%', 'display': 'inline-block'}),
+    ], style={'width': '50%', 'display': 'inline-block'}),
     
     html.Div([
         html.Label(id='mass_ratio-label', children=f'Mass ratio, q : {0.6}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='mass_ratio-slider',
-                   min=0.1, max=1, step=0.1, value=0.6,
-                   marks={i: str(i) for i in [0.1, 0.3, 0.5, 0.7, 0.9, 1]},
+                   min=0.05, max=1, step=0.05, value=0.6,
+                   marks={i: str(i) for i in [0.2, 0.4, 0.6, 0.8, 1]},
                    tooltip={"placement": "bottom", "always_visible": False}),
-    ], style={'width': '35%', 'display': 'inline-block'}),
+    ], style={'width': '25%', 'display': 'inline-block'}),
     
     html.Div([
         html.Label(id='redshift-label', children=f'Redshift, z : {0.3}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='redshift-slider',
-                     min=0.1, max=1, step=0.1, value=0.3,
-                     marks={i: str(i) for i in [0.1, 0.3, 0.5, 0.7, 0.9, 1]},
+                     min=0.05, max=1, step=0.05, value=0.3,
+                     marks={i: str(i) for i in [0.2, 0.4, 0.6, 0.8, 1]},
                      tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
     
@@ -572,8 +572,11 @@ app.layout = html.Div([
     html.Div(style={'height': '20px'}),
     
     html.Div([
-        html.Label(id='cos_i_JN-label', children=f'Cosine of angle between J and N, cos(ι_JN) : {0:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
-])
+        html.Label(id='cos_i_JN-label', children=f'Cosine of angle between J and N, cos(ι_JN) = {0:.2f}', style={'font-size': '15px', 'opacity': '0.9'})]),
+    
+    html.Div([
+        html.Label(id='total_mass=label', children=f'Total mass of the binary is, M = {23.88:.2f} solar masses (redshifted, M = {31.04:.2f} solar masses)', style={'font-size': '15px', 'opacity': '0.9'})])
+    
 ])
 
 
@@ -692,6 +695,16 @@ def update_gamma_N(value):
 def update_cos_i_JN(theta_J, theta_S, phi_J, phi_S):
     cos_i_JN = (np.sin(theta_J) * np.sin(theta_S) * np.cos(phi_J - phi_S)) + (np.cos(theta_J) * np.cos(theta_S))
     return f'Cosine of angle between J and N, cos(ι_JN) : {cos_i_JN:.2f}'
+
+@app.callback(
+    Output('total_mass=label', 'children'),
+    Input('chirp_mass-slider', 'value'),
+    Input('mass_ratio-slider', 'value'),
+    Input('redshift-slider', 'value'))
+def update_total_mass(chirp_mass, mass_ratio, redshift):
+    total_mass = chirp_mass/((mass_ratio/(1+mass_ratio)**2)**(3/5))
+    total_mass_redshifted = total_mass*(1+redshift)
+    return f'Total mass of the binary is, M = {total_mass:.2f} solar masses (redshifted, M = {total_mass_redshifted:.2f} solar masses)'
 
 import os
 if __name__ == '__main__':
