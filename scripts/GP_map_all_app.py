@@ -269,10 +269,11 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
     cos_i_JN = (np.sin(theta_J) * np.sin(theta_S) * np.cos(phi_J - phi_S)) + (np.cos(theta_J) * np.cos(theta_S))
     
     label = (
-        f'<b>Modulation</b> of the orbital angular momentum (L) around the total angular momentum (J) of the binary in the left panel, along with <b>the fractional change in amplitude</b> due to precession in the middle panel, and <b>phase differences</b> between a precessing and non-precessing binary in the right panel'
-        f'<br>The changes in the gravitational wave signal from an inspiralling binary black hole system with generic precession shown in blue (regular precession shown in gray dashdot) as compared to a non-precessing binary. The red dot in the left panel shows the direction of J.')
+        f'The changes in the gravitational wave signal from an inspiralling binary black hole system with generic precession shown in blue (regular precession shown in gray dashdot) as compared to a signal with no precession.'
+        f'<br>Modulation</b> of the orbital angular momentum (L) around the total angular momentum (J) of the binary in the left panel, along with <b>the fractional change in amplitude</b> due to generic precession in the middle panel,'
+        f'<br>and <b>phase differences</b> between a generically precessing and non-precessing binary in the right panel. The red dot in the left panel shows the direction of J.')
     
-    fig = make_subplots(rows=1, cols=3, subplot_titles=(r"Modulation", "Amplitude", "Phase"), vertical_spacing=0.15)
+    fig = make_subplots(rows=1, cols=3, subplot_titles=(r"Modulation", "Amplitude", "Phase"), vertical_spacing=0.25)
     
     fig_cos_L = plot_cos_L_phi_L(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi_J, theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Omega_tilde, omega_n_tilde, gamma_N)
     fig_amp = plot_amplitude(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi_J, theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Omega_tilde, omega_n_tilde, gamma_N)
@@ -312,7 +313,7 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
     # Update layout
     fig.update_layout(
         title=None,
-        margin=dict(t=45, b = 90),
+        margin=dict(t=45, b = 100),
         legend=dict(title='Legend', itemsizing='constant'),
         width=1350,
         height=450,
@@ -325,7 +326,7 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
     fig.add_annotation(
         text=label,  # Set your caption text here
         xref="paper", yref="paper",
-        x=0.5, y=-0.275,  # Position it further down to avoid cutoff
+        x=0.5, y=-0.325,  # Position it further down to avoid cutoff
         showarrow=False,
         font=dict(
             family="Times New Roman, sans-serif",
@@ -333,7 +334,7 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
             color="gray"
         ),
         align="center",
-        opacity=0.9  # Semi-transparent caption
+        opacity=0.95  # Semi-transparent caption
     )
     
     return fig
@@ -349,9 +350,9 @@ app.layout = html.Div([
     html.Link(rel='icon', href='/assets/bbh_spin.jpg?v=1'),
     
     html.H3("Generic Precession", style={'margin-bottom': '1px'}),
-    
-    dcc.Graph(id='combined-plot', style={'margin-top': '1px'}),
-    
+
+    dcc.Graph(id='combined-plot', style={'margin-bottom': '10px'}),
+
     # Watermark Section
     html.Div(
         style={
@@ -422,25 +423,25 @@ app.layout = html.Div([
     html.Div(style={'height': '20px'}),
     
     html.Div([
-        html.Label(id='theta_tilde-label', children=f'Precession amplitude, θ̃ : {5}', style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='theta_tilde-label', children=f'Precession amplitude, θ̃ : {5.0}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='theta_tilde-slider',
-                   min=0, max=9, step=0.1, value=5,
-                   marks={i: str(i) for i in range(10)},
+                   min=0, max=10, step=0.1, value=5,
+                   marks={i: str(i) for i in range(11)},
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '50%', 'display': 'inline-block'}),
 
     html.Div([
-        html.Label(id='Omega_tilde-label', children=f'Precession frequency, Ω̃ : {2}', style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='Omega_tilde-label', children=f'Precession frequency, Ω̃ : {2.0}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='Omega_tilde-slider',
-                   min=0, max=3, step=0.1, value=2,
-                   marks={i: str(i) for i in [0, 0.5, 1, 1.5, 2, 2.5, 3]},
+                   min=0, max=4.0, step=0.1, value=2.0,
+                   marks={i: str(i) for i in [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4]},
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
 
     html.Div([
-        html.Label(id='gamma_P-label', children=r'Precessional phase, γ_P : {0:.2f}'.format(0), style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='gamma_P-label', children=r'Precessional phase, γ_P : {0:.2f}'.format(0.0), style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='gamma_P-slider',
-                   min=0, max=2*np.pi, step=np.pi/16, value=0,
+                   min=0, max=2*np.pi, step=np.pi/16, value=0.0,
                    marks={
                        0: '0',
                        np.pi/2: 'π/2',
@@ -452,25 +453,25 @@ app.layout = html.Div([
     ], style={'width': '25%', 'display': 'inline-block'}),
     
     html.Div([
-        html.Label(id='delta_theta_tilde-label', children=r'Nutation amplitude, Δθ̃ : {1.2:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='delta_theta_tilde-label', children=r'Nutation amplitude, Δθ̃ : {0:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='delta_theta_tilde-slider',
-                   min=0, max=2.5, step=0.1, value=1.2,
-                   marks={i: str(i) for i in [0, 0.5, 1, 1.5, 2, 2.5]},
+                   min=0, max=3.0, step=0.1, value=0.0,
+                   marks={i: str(i) for i in [0, 0.5, 1, 1.5, 2, 2.5, 3]},
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
 
     html.Div([
-        html.Label(id='delta_Omega_tilde-label', children=r'Change in precession frequency, ΔΩ̃ : {0.2:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='delta_Omega_tilde-label', children=r'Change in precession frequency, ΔΩ̃ : {0.0:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='delta_Omega_tilde-slider',
-                   min=-1, max=1, step=0.1, value=0.2,
+                   min=-1, max=1, step=0.1, value=0.0,
                    marks={i: str(i) for i in [-1, -0.5, 0, 0.5, 1]},
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
 
     html.Div([
-        html.Label(id='omega_n_tilde-label', children=r'Nutation frequency, ω̃ : {1.3}', style={'font-size': '15px', 'opacity': '0.9'}),
+        html.Label(id='omega_n_tilde-label', children=r'Nutation frequency, ω̃ : {2.0:.2f}', style={'font-size': '15px', 'opacity': '0.9'}),
         dcc.Slider(id='omega_n_tilde-slider',
-                   min=0, max=6, step=0.1, value=1.3,
+                   min=0, max=6, step=0.1, value=2.0,
                    marks={i: str(i) for i in range(7)},
                    tooltip={"placement": "bottom", "always_visible": False}),
     ], style={'width': '25%', 'display': 'inline-block'}),
