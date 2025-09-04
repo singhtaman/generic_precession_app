@@ -269,8 +269,8 @@ def plot_combined(chirp_mass, mass_ratio, redshift, theta_S, phi_S, theta_J, phi
     cos_i_JN = (np.sin(theta_J) * np.sin(theta_S) * np.cos(phi_J - phi_S)) + (np.cos(theta_J) * np.cos(theta_S))
     
     label = (
-        f'<b>Modulation</b> of orbital angular momentum (L) around the total angular momentum (J), in the left panel, along with <b>fractional change in amplitude</b>, in the middle panel, and <b>phase differences</b>, in the right panel, for<br>gravitational wave signals from an inspiralling binary black hole system'
-        f' originating from a generically precessing (and regularly precessing, shown in gray dashdot lines) binary as compared to non-precessing binary.')
+        f'<b>Modulation</b> of the orbital angular momentum (L) around the total angular momentum (J) of the binary in the left panel, along with <b>the fractional change in amplitude</b> due to precession in the middle panel, and <b>phase differences</b> between a precessing and non-precessing binary in the right panel'
+        f'<br>The changes in the gravitational wave signal from an inspiralling binary black hole system with generic precession shown in blue (regular precession shown in gray dashdot) as compared to a non-precessing binary. The red dot in the left panel shows the direction of J.')
     
     fig = make_subplots(rows=1, cols=3, subplot_titles=(r"Modulation", "Amplitude", "Phase"), vertical_spacing=0.15)
     
