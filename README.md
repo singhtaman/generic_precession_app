@@ -7,6 +7,7 @@ This repository contains codes supporting the unpublished work on generic preces
 ## Contents
 
 - [Description](#description)
+- [Interactive web app](#interactive-web-app)
 - [Pre-requisites](#pre-requisites)
 - [Acknowlegement](#acknowledgement)
 - [License](#license)
@@ -21,6 +22,11 @@ Stellar binary black holes coalescing in LIGO band can have misaligned spins dep
 We introduce 3 new dimensionless parameters in the PN approximation to the GW waveforms along with 2 previously established in regular precession. The motion of $\vec{L}$ around $\vec{J}$ due to regular precession is defined by precession amplitude $\tilde{\theta}$ and precession frequency $\tilde{\Omega}$. Nutation adds a wobble (perturbation) to this motion which is defined by amplitude of this perturbation: nutation amplitude $\Delta\tilde{\theta}$, frequency of the perturbation: nutation frequency $\tilde{\omega}$, and how this perturbation changes the precession frequency: $\Delta\tilde{\Omega}$. We investigate how these 5 parameters (along with, now two, nuisance parameters: precessional phase and nutational phase) effect the GW amplitude and phase. We will also calculate mismatches between a generically precessing signal, a regularly precessing template bank and/or a non-precessing template bank to establish criterion for distinguishablity of precession along with nutation and probability of observing a precessing + nutating signal with current aLIGO sensitivities. We will explore different spin alignment scenarios and spin magnitudes to find corresponding distributions of precession parameters and Monte Carlo over sky locations & binary orientations at different cosmological redshifts to discuss the fractions of distinguishable precessing+nutating sources for current sensitivities.
 
 In this repository, you will find python scripts and jupyter notebooks that support the data and findings we report in our (soon to be submitted) work.
+
+
+## Interactive web app
+
+An interactive explorer of the precession and nutation imprints on the waveform (modulation of L, amplitude and phase relative to a non-precessing signal) is in [`webapp/`](webapp/), with entry point [`app.py`](app.py). Run it locally with `pip install -r requirements.txt && python app.py`. It needs only NumPy, SciPy and Astropy, not `lal` or `PyCBC`. Deployment to Vercel, tests and differences from the original Dash app in [`scripts/`](scripts/) are described in [`docs/vercel-ui.md`](docs/vercel-ui.md).
 
 
 ## Pre-requisites
