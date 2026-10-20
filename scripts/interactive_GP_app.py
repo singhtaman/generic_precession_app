@@ -302,7 +302,7 @@ def plot_combined(theta_tilde, Omega_tilde, gamma_P, delta_theta_tilde, delta_Om
     )
     
     fig.add_annotation(
-        text="© Tamanjyot Singh @ UTD",  # Replace with your watermark text
+        text="© Tamanjyot Singh",  # Replace with your watermark text
         xref="paper", yref="paper", 
         x=1.07, y=-0.2, 
         showarrow=False,
