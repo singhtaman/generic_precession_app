@@ -76,7 +76,7 @@ def test_two_by_two_arrangement(page):
     assert box["amp"]["y"] > box["mod"]["y"] + box["mod"]["height"] - 1
 
 
-def test_plots_stay_visible_through_singular_point_and_back(page):
+def test_plots_stay_visible_through_empty_states_and_back(page):
     """Regression: leaving an empty/error state used to leave plots collapsed behind their cards."""
     for slider, frac in [("theta_S-slider", 0), ("theta_J-slider", 0), ("theta_J-slider", 0.5),
                          ("chirp_mass-slider", 1), ("redshift-slider", 1), ("mass_ratio-slider", 1),

@@ -108,16 +108,8 @@ def register(app):
             r = compute(*values)
         except Exception as exc:  # report model failures instead of a silent callback error
             log.exception("Model evaluation failed for %s", dict(zip(CALL_ORDER, values)))
-            theta_S, theta_J = values[3], values[5]
-            if theta_S == 0 and theta_J == 0:
-                body = ["J and the line of sight N both point along the detector's z-axis (θ", html.Sub("S"),
-                        " = θ", html.Sub("J"), " = 0). Here the model's polarization reference angle, built "
-                        "from H = V × N, is undefined, so the waveform cannot be evaluated at this exact point. "
-                        "Move θ", html.Sub("S"), " or θ", html.Sub("J"), " by one step."]
-                title = "This orientation is a singular point of the model"
-            else:
-                body, title = f"{type(exc).__name__}: {exc}", "The model could not be evaluated for these parameters"
-            blank = figures.placeholder_figure("No plot for this orientation: see the message above")
+            body, title = f"{type(exc).__name__}: {exc}", "The model could not be evaluated for these parameters"
+            blank = figures.placeholder_figure("No plot for these parameters: see the message above")
             return (blank, blank, blank, _stats(d), "", *_notice("error", title, body), True)
         ms = (time.perf_counter() - t0) * 1000
 

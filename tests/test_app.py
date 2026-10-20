@@ -56,7 +56,6 @@ def test_largest_payload_fits_vercel_limit(call_main):
 
 @pytest.mark.parametrize("values,kind,phrase", [
     ([50, 1, 1] + DEFAULTS[3:], "notice-warn", "No signal in the detector band"),
-    ([10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:], "notice-error", "singular point"),
     ([None] + DEFAULTS[1:], "notice-warn", "Enter a value for chirp mass"),
     ([500] + DEFAULTS[1:], "notice-warn", "must be between 5 and 50"),
     ([10, 0.6, 0.3, 0, 0, PI / 2, PI / 4] + DEFAULTS[7:], "notice-info", "diverges"),
@@ -68,13 +67,28 @@ def test_states_are_explained(call_main, values, kind, phrase):
     assert phrase in notice_text(resp)
 
 
-@pytest.mark.parametrize("values", [
-    [50, 1, 1] + DEFAULTS[3:],
-    [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:],
-])
-def test_plots_are_never_hidden(call_main, values):
+@pytest.fixture()
+def model_fails(monkeypatch):
+    """Simulate a model failure (no real input currently triggers one)."""
+    def boom(*args):
+        raise FloatingPointError("invalid value encountered in scalar divide")
+    monkeypatch.setattr("webapp.callbacks.compute", boom)
+
+
+def test_model_failure_is_explained(call_main, model_fails):
+    resp, _ = call_main(DEFAULTS)
+    assert "notice-error" in resp["notice"]["className"]
+    assert "could not be evaluated" in notice_text(resp)
+    assert "FloatingPointError" in notice_text(resp)
+    assert resp["export-csv"]["disabled"] is True
+
+
+@pytest.mark.parametrize("state", ["out_of_band", "model_failure"])
+def test_plots_are_never_hidden(call_main, monkeypatch, state):
     """Empty and error states keep every graph (placeholder figure + message), never remove it."""
-    resp, _ = call_main(values)
+    if state == "model_failure":
+        monkeypatch.setattr("webapp.callbacks.compute", lambda *a: (_ for _ in ()).throw(FloatingPointError("x")))
+    resp, _ = call_main([50, 1, 1] + DEFAULTS[3:] if state == "out_of_band" else DEFAULTS)
     assert "plot-grid" not in resp
     for gid in ("mod-graph", "amp-graph", "phase-graph"):
         ann = resp[gid]["figure"]["layout"].get("annotations", [])
@@ -84,16 +98,16 @@ def test_plots_are_never_hidden(call_main, values):
 @pytest.mark.parametrize("values,disabled", [
     (DEFAULTS, False),
     ([50, 1, 1] + DEFAULTS[3:], True),
-    ([10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:], True),
+    ([10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:], False),  # J parallel to N: plots normally
 ])
 def test_export_button_disabled_without_data(call_main, values, disabled):
     resp, _ = call_main(values)
     assert resp["export-csv"]["disabled"] is disabled
 
 
-def test_export_at_singular_point_does_not_fail(client, dash_deps):
+def test_export_does_not_fail_when_model_fails(client, dash_deps, model_fails):
     dep = next(d for d in dash_deps if "download.data" in d["output"])
-    values = [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:]
+    values = DEFAULTS
     body = {"output": dep["output"], "outputs": {"id": "download", "property": "data"},
             "inputs": [{"id": "export-csv", "property": "n_clicks", "value": 1}],
             "state": [{"id": k, "property": "value", "value": v} for k, v in zip(CALL_ORDER, values)],
@@ -101,8 +115,8 @@ def test_export_at_singular_point_does_not_fail(client, dash_deps):
     assert client.post("/_dash-update-component", json=body).status_code in (200, 204)
 
 
-def test_callback_in_worker_thread_reports_singular_point(wsgi):
-    """Production servers handle requests in threads, where np.seterr from import time does not apply."""
+def test_callback_in_worker_thread_plots_pole_orientation(wsgi):
+    """Production servers handle requests in threads; J parallel to N must plot with finite data there."""
     dep = next(d for d in wsgi.test_client().get("/_dash-dependencies").get_json() if "mod-graph.figure" in d["output"])
     values = [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:]
     body = {"output": dep["output"], "outputs": callback_outputs(dep),
@@ -113,7 +127,9 @@ def test_callback_in_worker_thread_reports_singular_point(wsgi):
     t.start()
     t.join()
     resp = out["r"].get_json()["response"]
-    assert "singular point" in notice_text(resp)
+    assert resp["notice"]["className"] in ("notice is-empty", "notice notice-info")
+    assert "not finite" not in notice_text(resp)
+    assert resp["amp-graph"]["figure"]["data"]
 
 
 def _post_reset(client, dash_deps, trigger_id, groups_clicked=(), presets_clicked=()):

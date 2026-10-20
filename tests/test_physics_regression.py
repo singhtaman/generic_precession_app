@@ -27,7 +27,7 @@ NAMED = {
     "omega_n_zero_substitution": DEFAULTS[:12] + [0, 0],
     "all_maxima": [50, 1, 1, PI, 2 * PI, PI, 2 * PI, 10, 4, 2 * PI, 3, 1, 6, 2 * PI],
     "all_minima": [5, 0.05, 0.05, 0, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
-    "singular_pole": [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:],
+    "pole_J_parallel_N": [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:],
     "bnp_vanishes": [10, 0.6, 0.3, 0, 0, PI / 2, PI / 4] + DEFAULTS[7:],
 }
 
@@ -77,12 +77,11 @@ def test_compute_matches_original_bit_for_bit(original, name, args):
         np.testing.assert_array_equal(np.asarray(y, float), np.asarray(trace.y, float))
 
 
-def test_singular_pole_raises_like_original(original):
-    args = NAMED["singular_pole"]
-    with pytest.raises(FloatingPointError):
-        original.plot_combined(*args)
-    with pytest.raises(FloatingPointError):
-        physics.compute(*args)
+def test_pole_orientation_evaluates():
+    """theta_S = theta_J = 0 (J parallel to N on the detector z-axis) is handled by the face-on branch."""
+    r = physics.compute(*NAMED["pole_J_parallel_N"])
+    for a in (r.cos_L_GP, r.phi_L_GP, r.amp_GP, r.phase_GP, r.phase_RP):
+        assert np.all(np.isfinite(a))
 
 
 @pytest.mark.parametrize("args", [NAMED["defaults"], NAMED["face_on"], NAMED["out_of_band"], NAMED["all_minima"]])
@@ -110,20 +109,18 @@ def test_build_params_does_not_mutate_library_defaults():
     assert lib == before
 
 
-def test_model_error_state_is_enforced_in_worker_threads():
+def test_model_error_state_is_enforced_in_worker_threads(monkeypatch):
     """np.seterr is per-thread; web servers evaluate callbacks in worker threads."""
     assert physics.MODEL_ERRSTATE["invalid"] == "raise"
+    monkeypatch.setattr(physics, "_compute", lambda *args: np.geterr())
     seen = {}
 
     def worker():
         seen["thread_default"] = np.geterr()["invalid"]
-        try:
-            physics.compute(*NAMED["singular_pole"])
-            seen["result"] = "returned"
-        except FloatingPointError:
-            seen["result"] = "raised"
+        seen["during_compute"] = physics.compute(*NAMED["defaults"])["invalid"]
 
     t = threading.Thread(target=worker)
     t.start()
     t.join()
-    assert seen["result"] == "raised", f"thread default errstate was {seen['thread_default']!r}"
+    assert seen["thread_default"] != "raise"  # otherwise this test proves nothing
+    assert seen["during_compute"] == "raise"

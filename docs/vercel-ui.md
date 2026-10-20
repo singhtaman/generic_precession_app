@@ -28,7 +28,7 @@ byte-identical to `main`, so Render and Vercel can run side by side.
 - Status line (samples, band, compute time), CSV export of every plotted array at
   full precision, high-resolution PNG export from each plot's toolbar.
 - Explicit messages for: invalid input, no frequencies in band (f_cut < 20 Hz),
-  the model's singular point (θ_S = θ_J = 0), a divergent amplitude ratio (B_NP ≈ 0),
+  a model evaluation error, a divergent amplitude ratio (B_NP ≈ 0),
   and results where GP/RP coincide with the non-precessing signal.
 
 **Display rules** (`webapp/figures.py`): presentation only, computed values are
@@ -77,7 +77,7 @@ pytest -m ui                                        # optional browser tests
 
 | File | What it checks |
 |---|---|
-| `test_physics_regression.py` | Every plotted array equals `scripts/GP_map_all_app.py` bit-for-bit (named cases, slider extremes, seeded random sample, special-angle grid); identical exceptions at singular points; derived readouts; error state in worker threads |
+| `test_physics_regression.py` | Every plotted array equals `scripts/GP_map_all_app.py` bit-for-bit (named cases, slider extremes, seeded random sample, special-angle grid); identical exceptions wherever the model raises; J ∥ N (θ_S = θ_J = 0) evaluates; derived readouts; error state in worker threads |
 | `test_params.py` | Slider ids, ranges, steps and marks equal the original layout; the three changed defaults are listed explicitly |
 | `test_figures.py` | Original windows by default, data never outside the axes, wraps, J marker, stationary L, zero line, off-scale label |
 | `test_app.py` | Every endpoint and callback state, reset and presets, export (equals the computation; disabled without data), Vercel payload limit |
@@ -187,8 +187,12 @@ pauses until the 30-day window resets; there is no surprise bill.
 
 - New layout, controls, notices and export (above).
 - Axes widen to show data the original fixed windows cut off.
-- Singular point (θ_S = θ_J = 0): Render's plot silently stops updating; this app
-  says why. The underlying model behaviour is the same.
+- Model version: `feature/vercel-ui` includes the updated `generic_precession_no_match.py`
+  (nutation terms in `integrand_delta_phi`; near-face-on handling in `precession_angles`
+  and `beam_pattern_amplitude_and_phase`, so θ_S = θ_J = 0 now evaluates). Render serves
+  `main`, which keeps the previous model until that change is merged there; until then
+  the two sites show different phase curves when nutation is on.
+- Model errors: Render's plot silently stops updating; this app shows the error.
 - Nutation defaults differ (section 1).
 - Dependencies pinned (Render installs the latest versions on each build).
 - Cold starts on Vercel (section 5); Render keeps a process running (or spins it
@@ -202,7 +206,7 @@ pauses until the 30-day window resets; there is no surprise bill.
 | Build log: "Bundle size … exceeds the standard size; optimizing dependencies" | Packages will install at cold start (slower first load). Set `VERCEL_PYTHON_DISABLE_RUNTIME_INSTALL=1` and `VERCEL_SUPPORT_LARGE_FUNCTIONS=1`, then redeploy. |
 | Preview URL asks for a Vercel login | Previews use Vercel Authentication by default. Use the production URL, `vercel curl <url>`, or turn off Deployment Protection. |
 | First page load takes several seconds | Cold start after idle (section 5). |
-| All three plots show "No plot for this orientation" | θ_S = θ_J = 0, a singular point of the model; move either angle by one step. |
+| All three plots show "No plot for these parameters" | The model raised an error; the message above the plots names it. |
 | Amplitude panel shows "Off scale" | B_NP ≈ 0 for this orientation (e.g. edge-on, + polarization not seen by the detector); the ratio diverges. Use the toolbar's autoscale to see the full range. |
 | `vercel logs` returns nothing or "outside the available retention" | Hobby keeps runtime logs for one hour; omit `--since`. |
 | Regression tests skipped | Install `requirements-dev.txt` (matplotlib is needed to import the original app). |
