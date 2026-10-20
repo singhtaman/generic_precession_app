@@ -16,7 +16,6 @@
   --accent-weak: #eaf0fd;
   --rp: #d97a1c;
   --j: #d93a2b;
-  --ref: #1d2433;
 
   --warn-bg: #fff8eb;
   --warn-border: #f1d49a;
@@ -343,6 +342,7 @@ a { color: var(--accent); }
 }
 .button:hover { border-color: var(--accent); color: var(--accent-strong); }
 .button:active { background: var(--accent-weak); }
+.button:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--border-strong); color: var(--muted); background: var(--surface); }
 .button-ghost { border-color: transparent; color: var(--accent); }
 .button-ghost:hover { background: var(--accent-weak); border-color: transparent; }
 

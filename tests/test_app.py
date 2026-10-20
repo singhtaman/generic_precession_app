@@ -81,6 +81,26 @@ def test_plots_are_never_hidden(call_main, values):
         assert ann and "No " in ann[0]["text"], gid
 
 
+@pytest.mark.parametrize("values,disabled", [
+    (DEFAULTS, False),
+    ([50, 1, 1] + DEFAULTS[3:], True),
+    ([10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:], True),
+])
+def test_export_button_disabled_without_data(call_main, values, disabled):
+    resp, _ = call_main(values)
+    assert resp["export-csv"]["disabled"] is disabled
+
+
+def test_export_at_singular_point_does_not_fail(client, dash_deps):
+    dep = next(d for d in dash_deps if "download.data" in d["output"])
+    values = [10, 0.6, 0.3, 0, 0, 0, PI / 2] + DEFAULTS[7:]
+    body = {"output": dep["output"], "outputs": {"id": "download", "property": "data"},
+            "inputs": [{"id": "export-csv", "property": "n_clicks", "value": 1}],
+            "state": [{"id": k, "property": "value", "value": v} for k, v in zip(CALL_ORDER, values)],
+            "changedPropIds": ["export-csv.n_clicks"]}
+    assert client.post("/_dash-update-component", json=body).status_code in (200, 204)
+
+
 def test_callback_in_worker_thread_reports_singular_point(wsgi):
     """Production servers handle requests in threads, where np.seterr from import time does not apply."""
     dep = next(d for d in wsgi.test_client().get("/_dash-dependencies").get_json() if "mod-graph.figure" in d["output"])

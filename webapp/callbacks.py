@@ -93,12 +93,14 @@ def register(app):
         Output("status", "children"),
         Output("notice", "children"),
         Output("notice", "className"),
+        Output("export-csv", "disabled"),
         *SLIDER_INPUTS,
     )
     def update(*values):
+        """Returns three figures, stats, status, notice (children, class) and export-disabled."""
         msg = _validate(values)
         if msg:
-            return (no_update,) * 5 + _notice("warn", "Check the parameters", msg)
+            return (no_update,) * 5 + _notice("warn", "Check the parameters", msg) + (True,)
 
         d = derived_quantities(*values[:7])
         t0 = time.perf_counter()
@@ -116,7 +118,7 @@ def register(app):
             else:
                 body, title = f"{type(exc).__name__}: {exc}", "The model could not be evaluated for these parameters"
             blank = figures.placeholder_figure("No plot for this orientation: see the message above")
-            return (blank, blank, blank, _stats(d), "", *_notice("error", title, body))
+            return (blank, blank, blank, _stats(d), "", *_notice("error", title, body), True)
         ms = (time.perf_counter() - t0) * 1000
 
         if r.f.size == 0:
@@ -126,14 +128,14 @@ def register(app):
                     *_notice("warn", "No signal in the detector band",
                              ["The cut-off frequency f", html.Sub("cut"), f" = {r.f_cut:.2f} Hz is below f",
                               html.Sub("min"), f" = {F_MIN} Hz, so there are no frequencies to plot. "
-                              "Lower the chirp mass or redshift, or raise the mass ratio."]))
+                              "Lower the chirp mass or redshift, or raise the mass ratio."]), True)
 
         status = f"{r.f.size:,} samples · {F_MIN}–{r.f[-1]:.1f} Hz, Δf = {DELTA_F} Hz · {ms:.0f} ms"
         notes = _notes(r)
         notice, notice_cls = (_notice("info", "About these results", notes) if notes
                               else (None, "notice is-empty"))
         return (figures.modulation_figure(r), figures.amplitude_figure(r), figures.phase_figure(r),
-                _stats(d), status, notice, notice_cls)
+                _stats(d), status, notice, notice_cls, False)
 
     # Angle readouts as fractions of π, formatted in the browser (no server round trip).
     for p in PARAMS:
@@ -175,7 +177,11 @@ def register(app):
     def export(n_clicks, *values):
         if not n_clicks or _validate(values):
             return no_update
-        r = compute(*values)
+        try:
+            r = compute(*values)
+        except Exception:  # the button is disabled in this state; never fail the request
+            log.exception("Export failed for %s", dict(zip(CALL_ORDER, values)))
+            return no_update
         if r.f.size == 0:
             return no_update
         buf = io.StringIO()
