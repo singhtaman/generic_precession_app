@@ -188,7 +188,7 @@ def build():
         ]),
 
         html.Footer(className="footer", children=[
-            html.Span("© Tamanjyot Singh @ UTD"),
+            html.Span("© Tamanjyot Singh"),
             html.Span("Supported by NSF grant PHY-2309320", className="muted"),
         ]),
     ])
