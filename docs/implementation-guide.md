@@ -751,6 +751,16 @@ vercel alias set <deployment-url> <name>.vercel.app       # point the current de
 - Compare derived readouts against the original callbacks' formatted strings.
 - Test the error state in a worker thread (5.2) and that library defaults aren't mutated.
 
+### 12.1b Model reference outputs (`test_model_golden.py`) [Essential]
+
+The regression in 12.1 compares new and original apps, but both import the same model,
+so it cannot see a model change. Store a reference (`tests/golden/make_golden.py` →
+`model_reference.npz`: a few stress cases, every 8th sample) and compare with
+tolerances: about 1e-9 for closed-form arrays, 1e-5 of range for ODE-integrated ones (so it
+passes across platforms). Prove it works: remove a known factor from the model and
+check every case fails. Regenerate only with an intentional model change, in the same
+commit.
+
 ### 12.2 Controls (`test_params.py`) [Essential]
 
 Walk the original `app.layout`, collect its `dcc.Slider`s, and assert the same ids,
@@ -788,6 +798,13 @@ Use Playwright with a threaded `werkzeug.serving.make_server` on port 0:
 - Enter commits typed values; presets update the readouts; no page or console errors.
 
 Skip automatically when Playwright isn't installed.
+
+### 12.5b Continuous integration [Essential]
+
+A GitHub Actions workflow on the feature branch: Python 3.12, `pip install -r
+requirements-dev.txt`, `pytest -q`. A separate workflow on `main` installs the old app's
+requirements on each supported Python version and smoke-tests it (import, one
+computation, one callback over HTTP under gunicorn).
 
 ### 12.6 Live checks after deploying [Essential]
 

@@ -77,6 +77,7 @@ pytest -m ui                                        # optional browser tests
 
 | File | What it checks |
 |---|---|
+| `test_model_golden.py` | The model's output equals the committed reference `tests/golden/model_reference.npz` (7 cases). Catches any unintended model change. After an intentional change run `python tests/golden/make_golden.py` and commit the new reference with the model change |
 | `test_physics_regression.py` | Every plotted array equals `scripts/GP_map_all_app.py` bit-for-bit (named cases, slider extremes, seeded random sample, special-angle grid); identical exceptions wherever the model raises; J ∥ N (θ_S = θ_J = 0) evaluates; derived readouts; error state in worker threads |
 | `test_params.py` | Slider ids, ranges, steps and marks equal the original layout; the three changed defaults are listed explicitly |
 | `test_figures.py` | Original windows by default, data never outside the axes, wraps, J marker, stationary L, zero line, off-scale label |
@@ -85,6 +86,12 @@ pytest -m ui                                        # optional browser tests
 
 The regression tests import the original app, so they need `matplotlib`
 (included in `requirements-dev.txt`).
+
+**Continuous integration.** `.github/workflows/tests.yml` runs `pytest` on Python 3.12
+for every push to `feature/vercel-ui` and every pull request (results under the
+repository's Actions tab; private repos get 2,000 free minutes a month, a run takes a
+few minutes). `main` has its own workflow that checks the Render app installs and runs
+on every Python version its lockfile supports.
 
 ## 4. Deploy to Vercel
 
