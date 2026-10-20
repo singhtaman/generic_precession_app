@@ -12,7 +12,7 @@ byte-identical to `main`, so Render and Vercel can run side by side.
 | Branch | `main` | `feature/vercel-ui` |
 | Dependencies | `scripts/requirements.txt` (unpinned) | `requirements.txt` (pinned) |
 | Server | gunicorn, long-running | Vercel Function (Python 3.12, Fluid compute) |
-| URL | your Render service | https://generic-precession-ui.vercel.app |
+| URL | your Render service | https://genericprecession.vercel.app |
 
 ## 1. What changed
 
@@ -97,7 +97,7 @@ vercel login                                         # once, as the GitHub user 
 rm -rf /tmp/gp-deploy && mkdir /tmp/gp-deploy
 git archive feature/vercel-ui | tar -x -C /tmp/gp-deploy
 cd /tmp/gp-deploy
-vercel link --yes --project generic-precession-ui
+vercel link --yes --project generic-precession
 rm -f .env.local                                     # vercel link writes a short-lived token here; not needed
 vercel deploy                                        # preview (protected by Vercel Authentication)
 vercel deploy --prod                                 # public production URL
@@ -106,7 +106,7 @@ vercel deploy --prod                                 # public production URL
 ### Option B: Git integration (deploy on every push)
 
 1. Push the branch: `git push -u origin feature/vercel-ui`.
-2. Vercel dashboard → project `generic-precession-ui` → Settings → Git → connect
+2. Vercel dashboard → project `generic-precession` → Settings → Git → connect
    `singhtaman/generic_precession_app`.
 3. Settings → Git → **Production Branch**: `feature/vercel-ui`.
 4. Settings → Git → **Ignored Build Step** → custom command, so pushes to `main`
@@ -214,5 +214,5 @@ pauses until the 30-day window resets; there is no surprise bill.
 
 Nothing on Render changed. The original app is `scripts/GP_map_all_app.py` on
 `main`; `git checkout main` restores the repository exactly as before this branch.
-To stop the Vercel deployment, delete the `generic-precession-ui` project in the
-Vercel dashboard (or `vercel project rm generic-precession-ui`).
+To stop the Vercel deployment, delete the `generic-precession` project in the
+Vercel dashboard (or `vercel project rm generic-precession`).
