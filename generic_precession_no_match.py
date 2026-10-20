@@ -118,8 +118,8 @@ class Generic_precession():
         get_cos_beta(f) function is used to get the cosine of the nutational phase
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         """
-        mean_theta_LJ = 0.1*self.theta_tilde*(f/self.get_f_cut())**(1/3)
-        delta_theta_LJ = 0.1*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3)
+        mean_theta_LJ = (0.1/(4*self.eta))*self.theta_tilde*(f/self.get_f_cut())**(1/3) # includes the 1/(4 eta) factor
+        delta_theta_LJ = (0.1/(4*self.eta))*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3) # includes the 1/(4 eta) factor
         return (mean_theta_LJ + (delta_theta_LJ*self.get_cos_beta(f)))
     
     def get_phi_LJ(self, f):
@@ -376,8 +376,8 @@ class Generic_precession():
         # Nutation rate: omega_n_LJ / f_dot = d(beta)/df
         omega_n_LJ = 1000 * self.omega_n_tilde * (f/self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
 
-        # d(theta_LJ)/df for get_theta_LJ = 0.1*(theta_tilde + delta_theta_tilde*cos(beta))*(f/f_cut)**(1/3)
-        delta_theta_LJ = 0.1*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3)
+        # d(theta_LJ)/df for get_theta_LJ = (0.1/(4 eta))*(theta_tilde + delta_theta_tilde*cos(beta))*(f/f_cut)**(1/3)
+        delta_theta_LJ = (0.1/(4*self.eta))*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3)
         dtheta_LJ_df = (theta_LJ/(3*f)) - (delta_theta_LJ * omega_n_LJ * sin_beta / f_dot)
 
         if abs(abs(cos_i_JN) - 1) < 1e-3: # to avoid singularity in the face-on case
