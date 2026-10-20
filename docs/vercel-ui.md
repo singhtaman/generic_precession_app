@@ -187,11 +187,10 @@ pauses until the 30-day window resets; there is no surprise bill.
 
 - New layout, controls, notices and export (above).
 - Axes widen to show data the original fixed windows cut off.
-- Model version: `feature/vercel-ui` includes the updated `generic_precession_no_match.py`
-  (nutation terms in `integrand_delta_phi`; near-face-on handling in `precession_angles`
-  and `beam_pattern_amplitude_and_phase`, so θ_S = θ_J = 0 now evaluates). Render serves
-  `main`, which keeps the previous model until that change is merged there; until then
-  the two sites show different phase curves when nutation is on.
+- Same model on both: `main` and `feature/vercel-ui` share `generic_precession_no_match.py`
+  (θ_LJ with the 1/(4η) factor, nutation terms in `integrand_delta_phi`, near-face-on
+  handling so θ_S = θ_J = 0 evaluates). Model changes go to `main` and are merged into
+  `feature/vercel-ui`, then redeployed to Vercel.
 - Model errors: Render's plot silently stops updating; this app shows the error.
 - Nutation defaults differ (section 1).
 - Dependencies pinned (Render installs the latest versions on each build).
