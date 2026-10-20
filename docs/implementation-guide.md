@@ -694,8 +694,10 @@ vercel alias set <deployment-url> <name>.vercel.app       # point the current de
 ```
 
 **[Project-specific]** Project `generic-precession`; main address
-`genericprecession.vercel.app` (the older `generic-precession.vercel.app` and
-`generic-precession-ui.vercel.app` still point to the same app); region `iad1`.
+`genericprecession.vercel.app`; the older `generic-precession.vercel.app` and
+`generic-precession-ui.vercel.app` redirect to it with HTTP 308 (set with
+`vercel api /v9/projects/<project>/domains/<old> -X PATCH -f redirect=<new> -F redirectStatusCode=308`);
+region `iad1`.
 
 ### 11.8 Running beside an existing host [Essential]
 
@@ -935,7 +937,7 @@ Each of these happened in this project.
 | `vercel link` writes `.env.local` | OIDC token could be uploaded with the source | Delete before deploy; deploy from `git archive` |
 | Untracked local files | Personal files uploaded | Deploy from `git archive` |
 | Old Vercel project connected to the repo | Failed builds on every push | Delete or disconnect it |
-| Unpinned requirements on the old host | Rebuild silently upgrades to new major versions | Pin on the new branch; test the old app with current versions before pushing `main` |
+| Unpinned requirements on the old host | Rebuild silently upgrades to new major versions | Universal lockfile (`uv pip compile --universal --python-version <oldest>`) so pins work whatever Python the host runs; CI matrix over those versions |
 | Cross-platform numerics | Live ODE results differ from local at about 10⁻⁷ | Bit-for-bit only on the same platform; use tolerances live |
 | Hobby log retention | `vercel logs --since 1h` errors | Omit `--since` |
 | Element screenshots with a sticky header | The header overlaps the captured region | Use full-page screenshots for review |

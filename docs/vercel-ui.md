@@ -10,7 +10,7 @@ byte-identical to `main`, so Render and Vercel can run side by side.
 |---|---|---|
 | Code | `scripts/GP_map_all_app.py` | `app.py` → `webapp/` |
 | Branch | `main` | `feature/vercel-ui` |
-| Dependencies | `scripts/requirements.txt` (unpinned) | `requirements.txt` (pinned) |
+| Dependencies | `scripts/requirements.txt` (universal lockfile from `scripts/requirements.in`, Python 3.9–3.13) | `requirements.txt` (pinned) |
 | Server | gunicorn, long-running | Vercel Function (Python 3.12, Fluid compute) |
 | URL | your Render service | https://genericprecession.vercel.app |
 
@@ -129,6 +129,11 @@ Branch if unsure.
 
 ## 5. Vercel settings
 
+Domains: `genericprecession.vercel.app` is the site address. The older
+`generic-precession.vercel.app` and `generic-precession-ui.vercel.app` permanently
+redirect (HTTP 308) to it. To change redirects: Vercel dashboard → project → Settings →
+Domains, or `vercel api /v9/projects/generic-precession/domains/<domain> -X PATCH -f redirect=<target> -F redirectStatusCode=308`.
+
 `vercel.json` (committed) sets the Flask framework preset and keeps `scripts/`,
 the pycbc-dependent modules, tests and docs out of the function bundle.
 Without `"framework": "flask"` a project created as "Other" only looks for
@@ -200,7 +205,10 @@ pauses until the 30-day window resets; there is no surprise bill.
   `feature/vercel-ui`, then redeployed to Vercel.
 - Model errors: Render's plot silently stops updating; this app shows the error.
 - Nutation defaults differ (section 1).
-- Dependencies pinned (Render installs the latest versions on each build).
+- Both pin dependencies. Render's `scripts/requirements.txt` is a universal lockfile
+  (exact versions per Python version; on 3.12+ identical to Vercel's). To update it:
+  `uv pip compile scripts/requirements.in --universal --python-version 3.9 -o scripts/requirements.txt`,
+  then let the `render-app` workflow confirm the app still runs.
 - Cold starts on Vercel (section 5); Render keeps a process running (or spins it
   down on its own free tier).
 
