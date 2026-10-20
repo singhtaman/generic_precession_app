@@ -1,0 +1,49 @@
+# Smoke-tests the Render app (scripts/GP_map_all_app.py) with the pinned
+# scripts/requirements.txt on every Python version the lockfile supports.
+name: render-app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+      - run: pip install -r scripts/requirements.txt
+
+      - name: Model computes finite values
+        run: |
+          python - <<'EOF'
+          import sys, os, numpy as np
+          sys.path.insert(0, os.getcwd())
+          import scripts.GP_map_all_app as m
+          fig = m.plot_combined(10, 0.6, 0.3, np.pi/4, 0, np.pi/2, np.pi/2, 5, 2, 0, 1.2, 0.2, 1.3, 0)
+          assert len(fig.data) == 7
+          assert all(np.all(np.isfinite(np.asarray(t.y, float))) for t in fig.data)
+          print("ok")
+          EOF
+
+      - name: App serves the page and a callback under gunicorn
+        working-directory: scripts
+        run: |
+          gunicorn GP_map_all_app:server -b 127.0.0.1:8000 --daemon
+          for i in $(seq 1 30); do curl -sf -o /dev/null http://127.0.0.1:8000/ && break; sleep 1; done
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/)" = 200
+          BODY='{"output":"combined-plot.figure","outputs":{"id":"combined-plot","property":"figure"},"inputs":[{"id":"chirp_mass-slider","property":"value","value":10},{"id":"mass_ratio-slider","property":"value","value":0.6},{"id":"redshift-slider","property":"value","value":0.3},{"id":"theta_S-slider","property":"value","value":0.7853981633974483},{"id":"phi_S-slider","property":"value","value":0},{"id":"theta_J-slider","property":"value","value":1.5707963267948966},{"id":"phi_J-slider","property":"value","value":1.5707963267948966},{"id":"theta_tilde-slider","property":"value","value":5},{"id":"Omega_tilde-slider","property":"value","value":2},{"id":"gamma_P-slider","property":"value","value":0},{"id":"delta_theta_tilde-slider","property":"value","value":1.2},{"id":"delta_Omega_tilde-slider","property":"value","value":0.2},{"id":"omega_n_tilde-slider","property":"value","value":1.3},{"id":"gamma_N-slider","property":"value","value":0}],"changedPropIds":["chirp_mass-slider.value"]}'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H 'Content-Type: application/json' -d "$BODY" http://127.0.0.1:8000/_dash-update-component)" = 200
+          echo "page and callback OK"

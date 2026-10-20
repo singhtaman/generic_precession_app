@@ -1,0 +1,10 @@
+# Top-level dependencies of the Render app (scripts/GP_map_all_app.py).
+# scripts/requirements.txt is generated from this file; to update the pins run (from the repo root):
+#   uv pip compile scripts/requirements.in --universal --python-version 3.9 -o scripts/requirements.txt
+dash>=2.10
+plotly>=5.0
+numpy
+scipy
+astropy
+matplotlib
+gunicorn
