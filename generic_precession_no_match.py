@@ -360,25 +360,35 @@ class Generic_precession():
         cos_i_JN, sin_i_JN, cos_o_XH, sin_o_XH = self.precession_angles()
         f_dot = self.f_dot(f)
         
-        mean_Omega_LJ = 1000 * self.Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC) 
+        theta_LJ = self.get_theta_LJ(f)
+        phi_LJ = self.get_phi_LJ(f)
+
+        # Nutational phase beta(f) = H * omega_n_tilde * (1/f_min - 1/f) + gamma_N, as in get_cos_beta and get_phi_LJ
+        cos_beta = self.get_cos_beta(f)
+        H = (5000/96)/((self.get_total_mass()/self.SOLMASS2SEC) * (np.pi**(8/3)) * (self.mcz**(5/3)) * (self.get_f_cut()**(5/3)))
+        sin_beta = np.sin(H * self.omega_n_tilde * (1/self.FMIN - 1/f) + self.gamma_N)
+
+        # Precession rate: Omega_LJ / f_dot = d(phi_LJ)/df for get_phi_LJ
+        mean_Omega_LJ = 1000 * self.Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
         delta_Omega_LJ = 1000 * self.delta_Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
-        
-        Omega_LJ = mean_Omega_LJ + delta_Omega_LJ * np.cos(self.get_beta(f))
-        
-        mean_theta_LJ = (0.1/(4*self.eta))*self.theta_tilde*(f/self.get_f_cut())**(1/3) # note that here we are adding the eta factor
-        delta_theta_LJ = (0.1/(4*self.eta))*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3) # note that here we are adding the eta factor
-        theta_LJ = mean_theta_LJ + (delta_theta_LJ * np.cos(self.get_beta(f)))
-        
+        Omega_LJ = mean_Omega_LJ + delta_Omega_LJ * cos_beta
+
+        # Nutation rate: omega_n_LJ / f_dot = d(beta)/df
         omega_n_LJ = 1000 * self.omega_n_tilde * (f/self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
-        
+
+        # d(theta_LJ)/df for get_theta_LJ = 0.1*(theta_tilde + delta_theta_tilde*cos(beta))*(f/f_cut)**(1/3)
+        delta_theta_LJ = 0.1*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3)
+        dtheta_LJ_df = (theta_LJ/(3*f)) - (delta_theta_LJ * omega_n_LJ * sin_beta / f_dot)
+
         if abs(abs(cos_i_JN) - 1) < 1e-3: # to avoid singularity in the face-on case
-            integrand_delta_phi = - Omega_LJ * np.cos(self.get_theta_LJ(f)) / self.f_dot(f) # for face-on case
+            integrand_delta_phi = - Omega_LJ * np.cos(theta_LJ) / f_dot # for face-on case
 
         else:
-            Omega_LJ_factor = (Omega_LJ * np.sin(self.get_theta_LJ(f)) * ( np.cos(self.get_theta_LJ(f)) * sin_i_JN * np.sin(self.get_phi_LJ(f)) - np.sin(self.get_theta_LJ(f)) * cos_i_JN ) / (self.f_dot(f)))
-            
-            theta_LJ_factor = ((theta_LJ/(3*f)) - ((delta_theta_LJ * omega_n_LJ * np.sin(self.get_beta(f))) / (self.f_dot(f)))) * np.cos(self.get_phi_LJ(f)) * sin_i_JN
-            
+            # (L x N) . dL/df = phi_LJ' sin(theta) (cos(theta) sin(i) sin(phi) - sin(theta) cos(i)) - theta_LJ' cos(phi) sin(i)
+            Omega_LJ_factor = Omega_LJ * np.sin(theta_LJ) * ( np.cos(theta_LJ) * sin_i_JN * np.sin(phi_LJ) - np.sin(theta_LJ) * cos_i_JN ) / f_dot
+
+            theta_LJ_factor = dtheta_LJ_df * np.cos(phi_LJ) * sin_i_JN
+
             integrand_delta_phi = (LdotN / (1 - LdotN**2)) * (Omega_LJ_factor - theta_LJ_factor)
         
         return integrand_delta_phi
