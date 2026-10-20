@@ -365,7 +365,7 @@ app.layout = html.Div([
             'opacity': 0.4,
             'text-align': 'center',
         },
-        children="© Tamanjyot Singh @ UTD"  # Watermark text
+        children="© Tamanjyot Singh"  # Watermark text
     ),
     
     html.Div(
