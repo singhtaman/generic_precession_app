@@ -191,10 +191,14 @@ class Generic_precession():
         cos_i_JN = np.sin(self.theta_J) * np.sin(self.theta_S) * np.cos(self.phi_J - self.phi_S) + np.cos(self.theta_J) * np.cos(self.theta_S) # Equation A4 -- cos(i_JN) = sin(theta_J) * sin(theta_S) * cos(phi_J - phi_S) + cos(theta_J) * cos(theta_S)
         sin_i_JN = np.sqrt(1 - cos_i_JN ** 2)
         
-        if sin_i_JN == 0:
+        if abs(sin_i_JN) < 1e-3: # to avoid singularity in the face-on case
+            cos_o_XH = 1
+            sin_o_XH = 0
+            """
             tan_o_XH = (np.sin(self.theta_J) * np.sin(self.phi_J - self.phi_S)) / (np.cos(self.theta_J) * np.sin(self.theta_S) * np.cos(self.phi_J - self.phi_S) + np.sin(self.theta_J) * np.cos(self.theta_S))
             cos_o_XH = 1 / np.sqrt(1 + tan_o_XH ** 2)
             sin_o_XH = np.sqrt(1 - cos_o_XH ** 2)
+            """
         else:
             cos_o_XH = (np.cos(self.theta_S) * np.sin(self.theta_J) * np.cos(self.phi_J - self.phi_S) - np.sin(self.theta_S) * np.cos(self.theta_J)) / (sin_i_JN) # Equation A6b cos(Omega_{XH}) = (cos(theta_S) * sin(theta_J) * cos(phi_J - phi_S) - sin(theta_S) * cos(theta_J)) / sin(i_JN)
             sin_o_XH = (np.sin(self.theta_J) * np.sin(self.phi_J - self.phi_S)) / (sin_i_JN) # Equation A6a sin(Omega_{XH}) = (sin(theta_J) * sin(phi_J - phi_S)) / sin(i_JN)
@@ -253,7 +257,7 @@ class Generic_precession():
         num_psi = np.sin(self.get_theta_LJ(f)) * (np.cos(self.get_phi_LJ(f)) * sin_o_XH + np.sin(self.get_phi_LJ(f)) * cos_i_JN * cos_o_XH ) - np.cos(self.get_theta_LJ(f)) * sin_i_JN * cos_o_XH
         den_psi = np.sin(self.get_theta_LJ(f)) * (np.cos(self.get_phi_LJ(f)) * cos_o_XH - np.sin(self.get_phi_LJ(f)) * cos_i_JN * sin_o_XH ) + np.cos(self.get_theta_LJ(f)) * sin_i_JN * sin_o_XH
         
-        if abs(cos_i_JN) == 1:
+        if abs(abs(cos_i_JN) - 1) < 1e-3: # to avoid singularity in the face-on case
             o_XH = np.arctan2(sin_o_XH, cos_o_XH)
             tan_psi = np.tan(o_XH + cos_i_JN*self.get_phi_LJ(f)) # making sure it works for the face-on case
         else:
@@ -356,12 +360,26 @@ class Generic_precession():
         cos_i_JN, sin_i_JN, cos_o_XH, sin_o_XH = self.precession_angles()
         f_dot = self.f_dot(f)
         
-        Omega_LJ = 1000 * self.Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC) # Equation 18b -- Omega_LJ = 1000 * omega_tilde * (f / f_cut)**(5/3) / (M / M_solar)  
-        if abs(cos_i_JN) == 1:
-            integrand_delta_phi = - Omega_LJ * np.cos(self.get_theta_LJ(f)) / f_dot # for face-on case
-            
+        mean_Omega_LJ = 1000 * self.Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC) 
+        delta_Omega_LJ = 1000 * self.delta_Omega_tilde * (f / self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
+        
+        Omega_LJ = mean_Omega_LJ + delta_Omega_LJ * np.cos(self.get_beta(f))
+        
+        mean_theta_LJ = (0.1/(4*self.eta))*self.theta_tilde*(f/self.get_f_cut())**(1/3) # note that here we are adding the eta factor
+        delta_theta_LJ = (0.1/(4*self.eta))*self.delta_theta_tilde*(f/self.get_f_cut())**(1/3) # note that here we are adding the eta factor
+        theta_LJ = mean_theta_LJ + (delta_theta_LJ * np.cos(self.get_beta(f)))
+        
+        omega_n_LJ = 1000 * self.omega_n_tilde * (f/self.get_f_cut())**(5/3) / (self.get_total_mass()/self.SOLMASS2SEC)
+        
+        if abs(abs(cos_i_JN) - 1) < 1e-3: # to avoid singularity in the face-on case
+            integrand_delta_phi = - Omega_LJ * np.cos(self.get_theta_LJ(f)) / self.f_dot(f) # for face-on case
+
         else:
-            integrand_delta_phi = (LdotN / (1 - LdotN**2)) * Omega_LJ * np.sin(self.get_theta_LJ(f)) * ( np.cos(self.get_theta_LJ(f)) * sin_i_JN * np.sin(self.get_phi_LJ(f)) - np.sin(self.get_theta_LJ(f)) * cos_i_JN ) / f_dot
+            Omega_LJ_factor = (Omega_LJ * np.sin(self.get_theta_LJ(f)) * ( np.cos(self.get_theta_LJ(f)) * sin_i_JN * np.sin(self.get_phi_LJ(f)) - np.sin(self.get_theta_LJ(f)) * cos_i_JN ) / (self.f_dot(f)))
+            
+            theta_LJ_factor = ((theta_LJ/(3*f)) - ((delta_theta_LJ * omega_n_LJ * np.sin(self.get_beta(f))) / (self.f_dot(f)))) * np.cos(self.get_phi_LJ(f)) * sin_i_JN
+            
+            integrand_delta_phi = (LdotN / (1 - LdotN**2)) * (Omega_LJ_factor - theta_LJ_factor)
         
         return integrand_delta_phi
 
