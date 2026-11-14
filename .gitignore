@@ -243,3 +243,6 @@ pyrightconfig.json
 
 # Vercel CLI local project metadata and build output
 .vercel/
+
+# Browser build output (pages/build.sh)
+_site/
