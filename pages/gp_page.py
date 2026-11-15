@@ -58,8 +58,9 @@ def _f64(a):
 def evaluate(values, domain="frequency"):
     """Validate, then compute derived quantities and the GP/RP/NP comparison for values (CALL_ORDER).
 
-    In the time domain the result also holds h(t) for GP, RP and NP (webapp.time_domain) and the
-    J-frame directions of the GP model's L and N with the time map t(f) (webapp.sphere).
+    The result also holds the J-frame directions of the GP model's L and N with the time map t(f)
+    (webapp.sphere), for the sphere shown in both views; in the time domain it holds h(t) for GP,
+    RP and NP (webapp.time_domain) as well.
     """
     msg = _validate(values)
     if msg:
@@ -81,15 +82,16 @@ def evaluate(values, domain="frequency"):
                phi_L_RP=_f64(r.phi_L_RP), cos_L_RP=_f64(r.cos_L_RP),
                amp_GP=_f64(r.amp_GP), amp_RP=_f64(r.amp_RP),
                phase_GP=_f64(r.phase_GP), phase_RP=_f64(r.phase_RP))
-    if domain == "time" and r.f.size:
+    if r.f.size:
         try:
-            td = time_domain.strain(*values)
+            if domain == "time":
+                td = time_domain.strain(*values)
+                out.update(t=_f64(td.t), h_GP=_f64(td.h_GP), h_RP=_f64(td.h_RP), h_NP=_f64(td.h_NP),
+                           fs=td.fs, nt=int(td.t.size))
             sp = sphere.directions(*values)
         except Exception as exc:
             out["error"] = f"{type(exc).__name__}: {exc}"
             return out
-        out.update(t=_f64(td.t), h_GP=_f64(td.h_GP), h_RP=_f64(td.h_RP), h_NP=_f64(td.h_NP),
-                   fs=td.fs, nt=int(td.t.size))
         out.update(sp_t=_f64(sp.t), sp_theta=_f64(sp.theta_LJ), sp_phi=_f64(sp.phi_LJ),
                    sp_N=[float(v) for v in sp.N], sp_ldotn_error=sp.ldotn_error,
                    sp_t_monotonic=sp.t_monotonic)

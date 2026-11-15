@@ -1,4 +1,4 @@
-# Generic Precession explorer: browser version (local branch, hosting not decided)
+# Generic Precession explorer: browser version on GitHub Pages
 
 Branch `feature/github-pages` (from `feature/vercel-ui`) adds a static browser version of the
 explorer in `pages/`, ported from the Regular Precession app's browser build
@@ -6,11 +6,12 @@ explorer in `pages/`, ported from the Regular Precession app's browser build
 the model, `webapp/params.py`, `webapp/physics.py`, the Dash app, `vercel.json` and the tests are
 untouched; `.gitignore` gained `_site/`.
 
-**Hosting is not decided.** This repository is private. A browser build sends
-`generic_precession_no_match.py` to every visitor (Pyodide runs it in the browser), so publishing
-it makes the model code public even if the repository stays private. GitHub Pages from a private
-repository also needs a paid plan. No Pages workflow is included yet; the Regular Precession
-repo's `.github/workflows/pages.yml` can be copied once a host is chosen.
+**Hosting: GitHub Pages** at https://singhtaman.github.io/generic_precession_app/ (decided
+14 Nov 2026, when the repository was made public). `.github/workflows/pages.yml` (copied from the
+Regular Precession repo) runs `pages/build.sh` and deploys `_site/` on every push to
+`feature/github-pages`. The Vercel app is unaffected: it deploys from `feature/vercel-ui`. The
+browser build sends `generic_precession_no_match.py` to every visitor (Pyodide runs it in the
+browser).
 
 ## How it works
 
@@ -32,7 +33,7 @@ A Frequency / Time switch. In the time view the amplitude and phase panels are r
   `Generic_precession.precessing_strain(f)` on the app's grid, Tukey taper α = 0.1, t_c = 0
   (`webapp/time_domain.py`, same method as the RP app). RP is drawn solid here because dashes break
   up on a fast oscillation. Export columns: t_s, h_GP, h_RP, h_NP.
-- **Sphere** (GP signal only): unit sphere with J at the north pole (`webapp/sphere.py`).
+- **Sphere** (GP signal only, shown in both views): unit sphere with J at the north pole (`webapp/sphere.py`).
   L = (sin θ_LJ cos φ_LJ, sin θ_LJ sin φ_LJ, cos θ_LJ) from `get_theta_LJ` / `get_phi_LJ`, which
   include nutation. θ_LJ can be negative (Δθ̃ > θ̃) or exceed π/2 (it reaches 6.5 rad at q = 0.05),
   so the bands use the polar angle α = arccos(cos θ_LJ): blue = [min α, max α]; orange = latitudes
@@ -40,6 +41,10 @@ A Frequency / Time switch. In the time view the amplitude and phase panels are r
   checked against the model's `LdotN` on every call. Time ↔ frequency by t(f) = (1/2π) dΨ/df.
 - **Playback:** Play/pause, speed (default ¼×), time slider; L leaves a trail, the strain is traced
   behind a cursor and scrolls when zoomed in.
+- **Layout:** frequency view: modulation of L and sphere, then amplitude and phase, then system
+  properties. Time view: a 2 × 2 grid of modulation of L | system properties over sphere | strain.
+  In the frequency view, hovering the amplitude or phase plot at f places L at t(f), and playback
+  traces a cursor and fade across both plots.
 
 ## Checks (14 Nov 2026)
 
