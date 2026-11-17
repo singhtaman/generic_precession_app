@@ -1,9 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "flask",
-  "functions": {
-    "app.py": {
-      "excludeFiles": "{scripts/**,tests/**,docs/**,**/*.md,**/__pycache__/**,generic_precession.py,mismatch_n_SNR.py,Procfile,LICENSE}"
-    }
-  }
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "sh pages/build.sh",
+  "outputDirectory": "_site"
 }

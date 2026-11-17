@@ -63,3 +63,11 @@ A Frequency / Time switch. In the time view the amplitude and phase panels are r
   console errors.
 - **Not checked:** real phones/tablets; the repository's pytest suite (needs Python 3.12; no file it
   tests was changed).
+
+## Vercel (browser version, separate project)
+
+On this branch `vercel.json` describes the static browser build (no framework, no install,
+`sh pages/build.sh`, output `_site/`), so a separate Vercel project with production branch
+`feature/github-pages` serves the same site as GitHub Pages. The Dash app's Vercel project is
+unaffected: it deploys `feature/vercel-ui`, which keeps its own Flask `vercel.json`. Note that the
+Dash project also builds preview deployments of this branch, which now show the browser build.
